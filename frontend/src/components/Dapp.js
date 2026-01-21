@@ -20,7 +20,7 @@ import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { NoTokensMessage } from "./NoTokensMessage";
 
 // This is the default id used by the Hardhat Network
-const HARDHAT_NETWORK_ID = '31337';
+const HARDHAT_NETWORK_ID = 31337;
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -222,8 +222,7 @@ export class Dapp extends React.Component {
     this._token = new ethers.Contract(
       contractAddress.Token,
       TokenArtifact.abi,
-      this._provider.getSigner(0)
-    );
+      this._provider.getSigner(this.state.selectedAddress)    );
   }
 
   // The next two methods are needed to start and stop polling data. While
@@ -254,10 +253,11 @@ export class Dapp extends React.Component {
     this.setState({ tokenData: { name, symbol } });
   }
 
-  async _updateBalance() {
-    const balance = await this._token.balanceOf(this.state.selectedAddress);
-    this.setState({ balance });
-  }
+ async _updateBalance() {
+  if (!this.state.selectedAddress) return; // <-- early exit when there is no address selected
+  const balance = await this._token.balanceOf(this.state.selectedAddress);
+  this.setState({ balance });
+}
 
   // This method sends an ethereum transaction to transfer tokens.
   // While this action is specific to this application, it illustrates how to
